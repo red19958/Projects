@@ -1,0 +1,15 @@
+grammar kotlin;
+
+start()[]: FUN fun(){};
+fun()[]: WORD L args() R ret(){};
+args()[]: rest() {} | ~;
+rest()[]: WORD COLON WORD comma() {};
+comma()[]: COMMA rest() {} | ~;
+ret()[]: COLON WORD {} | ~;
+
+FUN: "fun";
+WORD: "[a-zA-Z][a-zA-Z0-9_]*";
+COLON: ":";
+L: "\\(";
+R: "\\)";
+COMMA: ",";

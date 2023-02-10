@@ -1,0 +1,48 @@
+grammar calculatordouble;
+
+translate (Map<String, Double> vars) [StringBuilder res]:
+assign(vars) {res.res = assign0.res;};
+
+assign (Map<String, Double> vars) [StringBuilder res]:
+VAR EQUAL expression(vars) SEMICOLON {Double lastValue = vars.put(VAR0, expression2.val);
+                if (lastValue != null)
+                    throw new IllegalStateException(String.format("var: \"%s\" is already assign with value: %d", VAR0, lastValue));
+                if(res.res == null)
+                    res.res = new StringBuilder(String.format("%s = %f;\n", VAR0, expression2.val));
+                else
+                   res.res.append(String.format("%s = %d;\n", VAR0, expression2.val));};
+
+expression (Map<String, Double> vars) [double val]:
+addS(vars) {$val = addS0.val;};
+
+addS (Map<String, Double> vars) [double val]:
+multiplyS(vars) add(vars, multiplyS0.val) {$val = add1.val;};
+
+add (Map<String, Double> vars, double acc) [double val]:
+ADD multiplyS(vars) {acc = acc + multiplyS1.val;} add(vars, acc) {$val = add2.val;}
+| SUB multiplyS(vars) {acc = acc - multiplyS1.val;} add(vars, acc) {$val = add2.val;}
+| ~ {$val = acc;};
+
+multiplyS (Map<String, Double> vars) [double val]:
+leaf(vars) multiply(vars, leaf0.val) {$val = multiply1.val;};
+
+multiply (Map<String, Double> vars, double acc) [double val]:
+MUL leaf(vars) {acc = acc * leaf1.val;} multiply(vars, acc) {$val = multiply2.val;}
+| DIV leaf(vars) {acc = acc / leaf1.val;} multiply(vars, acc) {$val = multiply2.val;}
+| ~ {$val = acc;};
+
+leaf (Map<String, Double> vars) [double val]: NUMBER {$val = Double.parseDouble(NUMBER0);} | VAR {Double val = vars.get(VAR0);
+                if (val == null)
+                    throw new IllegalStateException(String.format("var: \"%s\" is not assigned", VAR0));
+                $val = val;} | L expression(vars) R {$val = expression1.val;};
+
+NUMBER: "[0]|([1-9][0-9]*)(\\.[0-9]*)?";
+VAR: "[a-zA-Z][a-zA-Z0-9]*";
+ADD: "\\+";
+SUB: "-";
+MUL: "\\*";
+DIV: "/";
+L: "\\(";
+R: "\\)";
+EQUAL: "=";
+SEMICOLON: ";";

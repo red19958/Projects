@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="lab_4_translation_method-js-1.0-SNAPSHOT">
+    <output-path>$PROJECT_DIR$/build/libs</output-path>
+    <root id="archive" name="lab_4_translation_method-js-1.0-SNAPSHOT.jar">
+      <element id="module-output" name="lab_4_translation_method.jsMain" />
+    </root>
+  </artifact>
+</component>

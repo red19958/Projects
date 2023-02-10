@@ -1,0 +1,137 @@
+grammar calculator;
+
+
+type (HashMap vars) [StringBuilder res]:
+INT translateint(vars) {res.res = translateint1.res;}
+| DOUBLE translatedouble(vars) {res.res = translatedouble1.res;}
+| LONG translatelong(vars) {res.res = translatelong1.res;};
+
+translateint (Map<String, Integer> vars) [StringBuilder res]:
+assignint(vars) {res.res = assignint0.res;} translateint(vars) {if(translateint1.res != null)
+                    res.res.append(translateint1.res);}
+| ~ {};
+
+assignint (Map<String, Integer> vars) [StringBuilder res]:
+VAR EQUAL expressionint(vars) SEMICOLON {Integer lastValue = vars.put(VAR0, expressionint2.val);
+                if (lastValue != null)
+                    throw new IllegalStateException(String.format("var: \"%s\" is already assign with value: %d", VAR0, lastValue));
+                if(res.res == null)
+                    res.res = new StringBuilder(String.format("%s = %d;\n", VAR0, expressionint2.val));
+                else
+                    res.res.append(String.format("%s = %d;\n", VAR0, expressionint2.val));};
+
+expressionint (Map<String, Integer> vars) [int val]:
+addintS(vars) {$val = addintS0.val;};
+
+addintS (Map<String, Integer> vars) [int val]:
+multiplyintS(vars) addint(vars, multiplyintS0.val) {$val = addint1.val;};
+
+addint (Map<String, Integer> vars, int acc) [int val]:
+ADD multiplyintS(vars) {acc = acc + multiplyintS1.val;} addint(vars, acc) {$val = addint2.val;}
+| SUB multiplyintS(vars) {acc = acc - multiplyintS1.val;} addint(vars, acc) {$val = addint2.val;}
+| ~ {$val = acc;};
+
+multiplyintS (Map<String, Integer> vars) [int val]:
+leafint(vars) multiplyint(vars, leafint0.val) {$val = multiplyint1.val;};
+
+multiplyint (Map<String, Integer> vars, int acc) [int val]:
+MUL leafint(vars) {acc = acc * leafint1.val;} multiplyint(vars, acc) {$val = multiplyint2.val;}
+| DIV leafint(vars) {acc = acc / leafint1.val;} multiplyint(vars, acc) {$val = multiplyint2.val;}
+| ~ {$val = acc;};
+
+leafint (Map<String, Integer> vars) [int val]: NUMBER {$val = Integer.parseInt(NUMBER0);} | VAR {Integer val = vars.get(VAR0);
+                if (val == null)
+                    throw new IllegalStateException(String.format("var: \"%s\" is not assigned", VAR0));
+                $val = val;} | L expressionint(vars) R {$val = expressionint1.val;};
+
+translatedouble (Map<String, Double> vars) [StringBuilder res]:
+assigndouble(vars) {res.res = assigndouble0.res;} translatedouble(vars) {if(translatedouble1.res != null)
+                    res.res.append(translatedouble1.res);}
+| ~ {};
+
+assigndouble (Map<String, Double> vars) [StringBuilder res]:
+VAR EQUAL expressiondouble(vars) SEMICOLON {Double lastValue = vars.put(VAR0, expressiondouble2.val);
+                if (lastValue != null)
+                    throw new IllegalStateException(String.format("var: \"%s\" is already assign with value: %d", VAR0, lastValue));
+                if(res.res == null)
+                    res.res = new StringBuilder(String.format("%s = %f;\n", VAR0, expressiondouble2.val));
+                else
+                   res.res.append(String.format("%s = %d;\n", VAR0, expressiondouble2.val));};
+
+expressiondouble (Map<String, Double> vars) [double val]:
+adddoubleS(vars) {$val = adddoubleS0.val;};
+
+adddoubleS (Map<String, Double> vars) [double val]:
+multiplydoubleS(vars) adddouble(vars, multiplydoubleS0.val) {$val = adddouble1.val;};
+
+adddouble (Map<String, Double> vars, double acc) [double val]:
+ADD multiplydoubleS(vars) {acc = acc + multiplydoubleS1.val;} adddouble(vars, acc) {$val = adddouble2.val;}
+| SUB multiplydoubleS(vars) {acc = acc - multiplydoubleS1.val;} adddouble(vars, acc) {$val = adddouble2.val;}
+| ~ {$val = acc;};
+
+multiplydoubleS (Map<String, Double> vars) [double val]:
+leafdouble(vars) multiplydouble(vars, leafdouble0.val) {$val = multiplydouble1.val;};
+
+multiplydouble (Map<String, Double> vars, double acc) [double val]:
+MUL leafdouble(vars) {acc = acc * leafdouble1.val;} multiplydouble(vars, acc) {$val = multiplydouble2.val;}
+| DIV leafdouble(vars) {acc = acc / leafdouble1.val;} multiplydouble(vars, acc) {$val = multiplydouble2.val;}
+| ~ {$val = acc;};
+
+leafdouble (Map<String, Double> vars) [double val]: NUMBER {$val = Double.parseDouble(NUMBER0);} | VAR {Double val = vars.get(VAR0);
+                if (val == null)
+                    throw new IllegalStateException(String.format("var: \"%s\" is not assigned", VAR0));
+                $val = val;} | L expressiondouble(vars) R {$val = expressiondouble1.val;};
+
+
+translatelong (Map<String, Long> vars) [StringBuilder res]:
+assignlong(vars) {res.res = assignlong0.res;} translatelong(vars) {if(translatelong1.res != null)
+                    res.res.append(translatelong1.res);}
+| ~ {};
+
+assignlong (Map<String, Long> vars) [StringBuilder res]:
+VAR EQUAL expressionlong(vars) SEMICOLON {Long lastValue = vars.put(VAR0, expressionlong2.val);
+                if (lastValue != null)
+                    throw new IllegalStateException(String.format("var: \"%s\" is already assign with value: %d", VAR0, lastValue));
+                if(res.res == null)
+                    res.res = new StringBuilder(String.format("%s = %d;\n", VAR0, expressionlong2.val));
+                else
+                    res.res.append(String.format("%s = %d;\n", VAR0, expressionlong2.val));};
+
+expressionlong (Map<String, Long> vars) [long val]:
+addlongS(vars) {$val = addlongS0.val;};
+
+addlongS (Map<String, Long> vars) [long val]:
+multiplylongS(vars) addlong(vars, multiplylongS0.val) {$val = addlong1.val;};
+
+addlong (Map<String, Long> vars, long acc) [long val]:
+ADD multiplylongS(vars) {acc = acc + multiplylongS1.val;} addlong(vars, acc) {$val = addlong2.val;}
+| SUB multiplylongS(vars) {acc = acc - multiplylongS1.val;} addlong(vars, acc) {$val = addlong2.val;}
+| ~ {$val = acc;};
+
+multiplylongS (Map<String, Long> vars) [long val]:
+leaflong(vars) multiplylong(vars, leaflong0.val) {$val = multiplylong1.val;};
+
+multiplylong (Map<String, Long> vars, long acc) [long val]:
+MUL leaflong(vars) {acc = acc * leaflong1.val;} multiplylong(vars, acc) {$val = multiplylong2.val;}
+| DIV leaflong(vars) {acc = acc / leaflong1.val;} multiplylong(vars, acc) {$val = multiplylong2.val;}
+| ~ {$val = acc;};
+
+leaflong (Map<String, Long> vars) [Long val]: NUMBER {$val = Long.parseLong(NUMBER0);} | VAR {Long val = vars.get(VAR0);
+                if (val == null)
+                    throw new IllegalStateException(String.format("var: \"%s\" is not assigned", VAR0));
+                $val = val;} | L expressionlong(vars) R {$val = expressionlong1.val;};
+
+INT: "int";
+DOUBLE: "double";
+LONG: "long";
+NUMBER: "([0](\\.[0-9]))|([1-9][0-9]*(\\.[0-9])?)";
+VAR: "[a-zA-Z][a-zA-Z0-9]*";
+ADD: "\\+";
+SUB: "-";
+MUL: "\\*";
+DIV: "/";
+L: "\\(";
+R: "\\)";
+EQUAL: "=";
+SEMICOLON: ";";
+
